@@ -2,21 +2,23 @@
 
 namespace App\Controller;
 
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class JobsController extends AbstractController
 {
-    #[Route('/', name: 'app_jobs')]
-    public function index(): JsonResponse
+
+    public function getToken(): ?string
     {
         $clientId = "d21517c83e5a991cf51cdf6d1d5a2037";
-        $clientSecret = "";
+        $clientSecret = "120dfc91d602665e74105d579adb71d0";
         $api_url = 'https://api.jobijoba.com/v3/fr/login';
 
-        //Récupération du token
+        // Récupération du token
         try {
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $api_url);
@@ -28,16 +30,20 @@ class JobsController extends AbstractController
             curl_close($curl);
 
             if ($response->code == 200) {
-                return $this->json([
-                    'message' => $response->token,
-                ]);
+                return $response->token;
             }
 
-            return $this->json([
-                'message' => $response->message,
-            ]);
+            return null;
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            return null;
         }
+    }
+
+    #[Route('/', name: 'app_jobs')]
+    public function index(CacheInterface $tokenCache)
+    {
+        $token = $this->getToken();
+
+        dd($token);
     }
 }
