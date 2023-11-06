@@ -52,12 +52,38 @@ class JobsController extends AbstractController
     #[Route('/', name: 'home')]
     public function index(CacheInterface $cache): JsonResponse
     {
-
         $token = $cache->get('api_token', function (ItemInterface $item) {
             $item->expiresAfter(3600);
             return $this->getToken();
         });
 
         return $this->json($token);
+    }
+
+
+    #[Route('/jobs', name: 'jobs')]
+    public function getJobs(CacheInterface $cache): JsonResponse
+    {
+        $api_url = $this->getParameter('api_url');
+
+        $token = $cache->get('api_token', function (ItemInterface $item) {
+            $item->expiresAfter(3600);
+            return $this->getToken();
+        });
+
+        $params = [
+            'what' => 'Infirmier',
+            'where' => 'Paris',
+            'limit' => 5,
+        ];
+
+        // Récupération des offres
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $api_url . 'ads/search?' . http_build_query($params));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+        $response = json_decode(curl_exec($curl));
+
+        return $this->json($response);
     }
 }
