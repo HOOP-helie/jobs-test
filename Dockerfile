@@ -15,6 +15,8 @@ WORKDIR /var/www
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.6.5
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 RUN composer install --prefer-dist --no-progress --no-interaction
 
 RUN chown -R www-data:www-data /var/www/html
