@@ -65,7 +65,7 @@ class JobsController extends AbstractController
     }
 
     #[Route('/jobs/search', name: 'search_jobs')]
-    public function searchJobs(Request $request): Response
+    public function searchJobs(Request $request, CacheInterface $cache): Response
     {
         $searchForm = $this->createFormBuilder()
             ->add('what', TextType::class, [
@@ -89,16 +89,32 @@ class JobsController extends AbstractController
         $searchForm->handleRequest($request);
 
         if ($searchForm->isSubmitted() && $searchForm->isValid()) {
-            dd($searchForm->getData());
+            $userInput = $searchForm->getData();
+            $dataAPI = $this->getJobs($cache, $userInput['what'], $userInput['where']);
+
+            $jobsData = $dataAPI->data;
+            $totalJobsFound = $jobsData->total;
+            $jobsFound = $jobsData->ads;
+
+
+            return $this->render('jobs.html.twig', [
+                'searchForm' => $searchForm->createView(),
+                'totalJobs' => $totalJobsFound,
+                'jobs' => $jobsFound
+
+            ]);
         }
         return $this->render('jobs.html.twig', [
-            'searchForm' => $searchForm->createView()
+            'searchForm' => $searchForm->createView(),
+            'totalJobs' => null,
+            'jobs' => null
+
         ]);
     }
 
 
 
-    public function getJobs(CacheInterface $cache): Response
+    public function getJobs(CacheInterface $cache, $what, $where)
     {
         $api_url = $this->getParameter('api_url');
 
@@ -108,8 +124,8 @@ class JobsController extends AbstractController
         });
 
         $params = [
-            'what' => 'Infirmier',
-            'where' => 'Paris',
+            'what' => $what,
+            'where' => $where,
             'limit' => 5,
         ];
 
@@ -119,7 +135,9 @@ class JobsController extends AbstractController
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
         $response = json_decode(curl_exec($curl));
-
-        return $response;
+        // dd($response);
+        if ($response->code == 200) {
+            return $response;
+        }
     }
 }

@@ -6,5 +6,28 @@
             {{ form(searchForm) }}
         </div>
     </div>
+    <div class="results container">
+        {% if jobs is defined and jobs is not null%}
+            <p class="found-jobs">{{ totalJobs }} offre(s) trouvée(s)</p>
+            <ul>
+                {% for job in jobs %}
+                    <li class="job-block">
+                        <p class="job-title">{{ job.title }}</p>
+                        <p>{{ job.company }}</p>
+                        {% if job.contractType is defined %}
+                            {% for contract in job.contractType %}
+                                <span>{{ contract }}</span>
+                            {% endfor %}
+                        {% endif %}
+                        <p>{{ job.city }}</p>
+                        <p>{{ job.description }}</p>
+                    </li>
+                {% else %}
+                    <p>Pas d'offres trouvées</p>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Pas d'offres trouvées</p>
+        {% endif %}
+    </div>
 {% endblock %}
-

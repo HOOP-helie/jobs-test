@@ -1,3 +1,7 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .search-container {
     background-color: #363b47;
 }
@@ -32,5 +36,23 @@
     text-align: center;
     border: none;
     width: 100%;
+}
 
+.results {
+    margin-top: 2rem;
+}
+
+.results .job-block {
+    border: 1px solid rgb(196, 196, 196);
+    border-radius: 3px;
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
+.results .job-block p {
+    margin-bottom: 0.5rem;
+}
+
+.results .job-block .job-title {
+    font-weight: 700;
 }
