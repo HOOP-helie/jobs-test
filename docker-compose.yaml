@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  web_app:
+    image: "jobs-webapp"
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/
