@@ -2,17 +2,27 @@
 
 namespace App\Service;
 
+use LDAP\Result;
+
 class JobsService
 {
     private $apiUrl;
+    private $tokenService;
 
-    public function __construct(string $apiUrl)
+    public function __construct(TokenService $tokenService, string $apiUrl)
     {
         $this->apiUrl = $apiUrl;
+        $this->tokenService = $tokenService;
     }
 
-    public function getJobs(string $token, string $what, string $where, int $limit = 5)
+    public function getJobs(string $what, string $where, int $limit = 5)
     {
+        $token = $this->tokenService->getToken();
+
+        if (!$token) {
+            return null;
+        }
+
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->apiUrl . 'ads/search?' . http_build_query(['what' => $what, 'where' => $where, 'limit' => $limit]));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

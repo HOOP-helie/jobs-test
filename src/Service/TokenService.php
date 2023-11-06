@@ -2,20 +2,26 @@
 
 namespace App\Service;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+
 class TokenService
 {
     private $clientId;
     private $clientSecret;
     private $apiUrl;
+    private $cache;
 
-    public function __construct(string $clientId, string $clientSecret, string $apiUrl)
+    public function __construct(CacheInterface $cache, string $clientId, string $clientSecret, string $apiUrl)
     {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->apiUrl = $apiUrl;
+        $this->cache = $cache;
     }
 
-    public function getToken(): ?string
+    public function getTokenFromAPI(): ?string
     {
         try {
             $curl = curl_init();
@@ -32,7 +38,18 @@ class TokenService
             }
             return null;
         } catch (\Exception $e) {
-            return null;
+            return $e->getMessage();
         }
+    }
+
+    public function getToken()
+    {
+        $response = $this->cache->get('api_token', function (ItemInterface $item) {
+            // Expire après 50min
+            $item->expiresAfter(3000);
+            return $this->getTokenFromAPI();
+        });
+
+        return $response;
     }
 }

@@ -29,3 +29,7 @@ services:
             $clientSecret: '%env(CLIENT_SECRET)%'
             $apiUrl: '%env(API_URL)%'
 
+    App\Service\JobsService:
+        arguments:
+            $apiUrl: '%env(API_URL)%'
+            $tokenService: '@App\Service\TokenService'
