@@ -1,0 +1,36 @@
+.search-container {
+    background-color: #363b47;
+}
+
+.container {
+    max-width: 71.25rem;
+    margin: auto;
+}
+
+.search-container #form {
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    max-width: 38rem;
+    margin: auto;
+}
+
+.search-container #form input {
+    padding: 1rem;
+    border-radius: 28px;
+    min-width: 13rem;
+    border: none;
+}
+
+.search-container #form button {
+    background-color: #ff2782;
+    border-radius: 28px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: center;
+    border: none;
+    width: 100%;
+
+}

@@ -2,11 +2,15 @@
 
 namespace App\Controller;
 
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class JobsController extends AbstractController
 {
@@ -60,9 +64,41 @@ class JobsController extends AbstractController
         return $this->json($token);
     }
 
+    #[Route('/jobs/search', name: 'search_jobs')]
+    public function searchJobs(Request $request): Response
+    {
+        $searchForm = $this->createFormBuilder()
+            ->add('what', TextType::class, [
+                'required' => true,
+                'label' => false,
+                'attr' => array(
+                    'placeholder' => 'Quel emploi recherchez-vous ?'
+                )
+            ])
+            ->add('where', TextType::class, [
+                'required' => true,
+                'label' => false,
+                'attr' => array(
+                    'placeholder' => 'Où ?'
+                )
+            ])
+            ->add('Rechercher', SubmitType::class)
+            ->getForm();
 
-    #[Route('/jobs', name: 'jobs')]
-    public function getJobs(CacheInterface $cache): JsonResponse
+
+        $searchForm->handleRequest($request);
+
+        if ($searchForm->isSubmitted() && $searchForm->isValid()) {
+            dd($searchForm->getData());
+        }
+        return $this->render('jobs.html.twig', [
+            'searchForm' => $searchForm->createView()
+        ]);
+    }
+
+
+
+    public function getJobs(CacheInterface $cache): Response
     {
         $api_url = $this->getParameter('api_url');
 
@@ -84,6 +120,6 @@ class JobsController extends AbstractController
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
         $response = json_decode(curl_exec($curl));
 
-        return $this->json($response);
+        return $response;
     }
 }
