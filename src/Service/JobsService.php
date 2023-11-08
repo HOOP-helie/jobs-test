@@ -15,7 +15,7 @@ class JobsService
         $this->tokenService = $tokenService;
     }
 
-    public function getJobs(string $what, string $where, int $limit = 5)
+    public function getJobs(string $what, string $where, int $page = 1, int $limit = 10)
     {
         $token = $this->tokenService->getToken();
 
@@ -24,7 +24,7 @@ class JobsService
         }
 
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->apiUrl . 'ads/search?' . http_build_query(['what' => $what, 'where' => $where, 'limit' => $limit]));
+        curl_setopt($curl, CURLOPT_URL, $this->apiUrl . 'ads/search?' . http_build_query(['what' => $what, 'where' => $where, 'page' => $page, 'limit' => $limit]));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
 

@@ -45,6 +45,7 @@ class JobsController extends AbstractController
     #[Route('/jobs/search', name: 'search_jobs')]
     public function searchJobs(Request $request): Response
     {
+        // Créée le formulaire
         $searchForm = $this->createFormBuilder()
             ->add('what', TextType::class, [
                 'required' => true,
@@ -63,37 +64,46 @@ class JobsController extends AbstractController
             ->add('Rechercher', SubmitType::class)
             ->getForm();
 
-
+        // Gère la soumission du formulaire
         $searchForm->handleRequest($request);
+        $currentPage = 1;
+        $what = $request->query->get('what');
+        $where = $request->query->get('where');
 
+        // Si le formulaire est soumis et valide
         if ($searchForm->isSubmitted() && $searchForm->isValid()) {
             $userInput = $searchForm->getData();
+            // Faire une requête avec les données du formulaire
+            $what = $userInput['what'];
+            $where =  $userInput['where'];
+            $dataAPI = $this->jobsService->getJobs($what, $where);
 
-            $dataAPI = $this->jobsService->getJobs($userInput['what'], $userInput['where']);
+            // Sinon, prendre les params de l'url
+        } elseif ($what && $where) {
+            $currentPage = $request->query->get('page');
+            $dataAPI = $this->jobsService->getJobs($what, $where, $currentPage);
 
-            if ($dataAPI === null) {
-                return $this->render('jobs.html.twig', [
-                    'searchForm' => $searchForm->createView(),
-                    'jobs' => null
-                ]);
-            }
-
-            $jobsData = $dataAPI->data;
-            $totalJobsFound = $jobsData->total;
-            $jobsFound = $jobsData->ads;
-
+            // Sinon, rendre le template de base
+        } else {
             return $this->render('jobs.html.twig', [
-                'searchForm' => $searchForm->createView(),
-                'totalJobs' => $totalJobsFound,
-                'jobs' => $jobsFound
-
+                'searchForm' => $searchForm->createView()
             ]);
         }
+
+        //Todo : Gérer le cas où l'api ne retourne une erreur
+
+        //Todo : Gérer le cas où les données ci-dessous n'existent pas
+        $jobsData = $dataAPI->data;
+        $totalJobsFound = $jobsData->total;
+        $jobsFound = $jobsData->ads;
+
         return $this->render('jobs.html.twig', [
             'searchForm' => $searchForm->createView(),
-            'totalJobs' => null,
-            'jobs' => null
-
+            'totalJobs' => $totalJobsFound,
+            'jobs' => $jobsFound,
+            'currentPage' => $currentPage,
+            'what' => $what,
+            'where' => $where
         ]);
     }
 }
