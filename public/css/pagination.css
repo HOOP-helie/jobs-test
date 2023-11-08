@@ -4,21 +4,26 @@
     width: 100%;
     left: 0;
     background-color: white;
+    border-top: 1px solid #bdbdbd;
+    box-shadow: 0px 7px 24px 0px rgb(58 58 58 / 10%)
 }
 
 .pagination--inner {
     padding: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pagination a {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: #696969;
     text-decoration: none;
-    margin: 0 2px;
+    margin: 0 10px;
 }
 
 .pagination a.active {
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #ff2782;
 }

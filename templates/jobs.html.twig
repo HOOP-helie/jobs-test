@@ -28,10 +28,10 @@
 								{% endif %}
 								<p>{{ job.company }}</p>
 							</div>
-							<p>{{ job.description | e }}...</p>
+							<p>{{ job.description | raw }}...</p>
 						</li>
 					{% else %}
-						{# S'il y n'a aucune offres#}
+						{# S'il y n'a aucune offres #}
 						<p>Pas d'offres trouvées</p>
 					{% endfor %}
 				</ul>
@@ -39,22 +39,60 @@
 				<div class="pagination">
 					<div class="pagination--inner container">
 						{% set totalPages = (totalJobs / 10) | round(0,'ceil') %}
-						{% for i in 1..totalPages %}
-							<a href=" {{ path('search_jobs', {'page': i, 'what' : what, 'where' : where} ) }}" class=" {{i == currentPage ? 'active' : ''}} ">
-								{{ i }}
-							</a>
-						{% endfor %}
-						{# Si >3pages d'offres, limiter aux 3 premirèes  pages et la dernière #}
-					{# Si > 3, afficher la currentpage et quelques pages avant et après (2?) #}
-						{# Ajouter une flèche pour aller au +1 : vérifier si l'on est pas à la dernière page #}
-					{% endif %}
 
+						{# Bouton précédent #}
+						{% if currentPage != 1 %}
+							<a href=" {{ path('search_jobs', {'page': currentPage -1 , 'what' : what, 'where' : where} ) }}" class="before">&lt;</a>
+						{% endif %}
+
+						{# Si < 8 pages d'offres, afficher toutes les pages #}
+						{% if totalPages < 8 %}
+							{% for i in 1..totalPages %}
+								<a href=" {{ path('search_jobs', {'page': i, 'what' : what, 'where' : where} ) }}" class=" {{i == currentPage ? 'active' : ''}} ">
+									{{ i }}
+								</a>
+							{% endfor %}
+						{% endif %}
+
+						{# Si > 8 pages d'offres, limiter l'affichage aux 3 premières pages et la dernière #}
+						{% if totalPages > 8 %}
+							{% for i in 1..3 %}
+								<a href=" {{ path('search_jobs', {'page': i, 'what' : what, 'where' : where} ) }}" class=" {{i == currentPage ? 'active' : ''}} ">
+									{{ i }}
+								</a>
+							{% endfor %}
+
+							{# Afficher la page actuelle si elle est supérieure à 3 ou inférieure au nombre total de pages pour éviter les doublons #}
+							{% if currentPage > 3  and currentPage != totalPages %}
+								<p>...</p>
+								<a href=" {{ path('search_jobs', {'page': currentPage, 'what' : what, 'where' : where} ) }}" class="active">{{currentPage}}</a>
+							{% endif %}
+
+							{# Ne pas afficher ... après le n° de la page actuelle s'il s'agit de l'avant dernière page #}
+							{% if  currentPage != (totalPages - 1)  %}
+								<p>...</p>
+							{% endif %}
+
+							<a href=" {{ path('search_jobs', {'page': totalPages, 'what' : what, 'where' : where} ) }}" class=" {{totalPages == currentPage ? 'active' : ''}} ">{{totalPages}}</a>
+
+						{% endif %}
+
+						{# Bouton suivant  #}
+						{% if totalPages != currentPage %}
+							<a href=" {{ path('search_jobs', {'page': currentPage +1, 'what' : what, 'where' : where} ) }}" class="next">
+								&gt;</a>
+						{% endif %}
+					</div>
 				</div>
-			</div>
 
-			{# Affichage par défaut #}
-		{% else %}
-			<h1>Vos offres d'emploi en temps réel</h1>
-		{% endif %}
-	</div>
-{% endblock %}
+				{# Affichage par défaut #}
+			{% else %}
+				<section class="header-content">
+					<h1>Vos offres d'emploi en temps réel</h1>
+					<p class="description">Jobijoba regroupe toutes les offres d'emploi du web et vous les suggère de manière personnalisée
+						<br>
+						Plus d'1 million d'offres vous attendent dans les secteurs, les métiers et les lieux de votre choix. Vous trouverez aussi des conseils professionnels et des descriptions précises pour vous assister dans votre recherche.</p>
+				</section>
+			{% endif %}
+		</div>
+	{% endblock %}
