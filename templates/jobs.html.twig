@@ -6,6 +6,12 @@
 			{{ form(searchForm) }}
 			</div>
 		</div>
+		{% for flash_message in app.flashes('error') %}
+			<div class="alert container">
+				<p>{{ flash_message }}</p>
+			</div>
+		{% endfor %}
+
 		<div
 			class="results container">
 			{# S'il y a des offres d'emplois trouvées#}

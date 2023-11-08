@@ -23,23 +23,34 @@ class TokenService
 
     public function getTokenFromAPI(): ?string
     {
-        try {
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $this->apiUrl . 'login');
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(['client_id' =>
-            $this->clientId, 'client_secret' => $this->clientSecret]));
-            $response = json_decode(curl_exec($curl));
-            curl_close($curl);
 
-            if ($response->code == 200 && isset($response->token)) {
-                return $response->token;
-            }
-            return null;
-        } catch (\Exception $e) {
-            return $e->getMessage();
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->apiUrl . 'login');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(['client_id' =>
+        $this->clientId, 'client_secret' => $this->clientSecret]));
+
+        $response = curl_exec($curl);
+
+        // Si la requête a échoué
+        if ($response === false) {
+            // $error = curl_error($curl);
+            // Ajouter un logger avec $error
+            curl_close($curl);
+            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard.");
         }
+
+        $decodedResponse = json_decode($response);
+        curl_close($curl);
+
+        // Si la requête a réussi mais qu'on ne trouve pas de token
+        if (!isset($decodedResponse->token)) {
+            // Ajouter un logger
+            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard..");
+        }
+
+        return $decodedResponse->token;
     }
 
     public function getToken()

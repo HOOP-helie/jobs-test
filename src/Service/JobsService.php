@@ -2,8 +2,6 @@
 
 namespace App\Service;
 
-use LDAP\Result;
-
 class JobsService
 {
     private $apiUrl;
@@ -20,7 +18,7 @@ class JobsService
         $token = $this->tokenService->getToken();
 
         if (!$token) {
-            return null;
+            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard.");
         }
 
         $curl = curl_init();
@@ -28,13 +26,23 @@ class JobsService
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
 
-        $response = json_decode(curl_exec($curl));
-        curl_close($curl);
+        $response = curl_exec($curl);
 
-        if (isset($response->code) && $response->code == 200) {
-            return $response;
+        if ($response === false) {
+            // $error = curl_error($curl);
+            // Ajouter un logger
+            curl_close($curl);
+            throw new \Exception("Les offres d'emploi n'ont pas pu être récupérées. Veuillez rééssayer plus tard.");
         }
 
-        return null;
+        $decodedResponse = json_decode($response);
+        curl_close($curl);
+
+        if (isset($decodedResponse->code) && $decodedResponse->code == 200) {
+            return $decodedResponse;
+        } else {
+            // Ajouter un logger
+            throw new \Exception("La requête a échoué. Veuillez réssayer plus tard.");
+        }
     }
 }

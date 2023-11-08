@@ -23,6 +23,7 @@ class JobsController extends AbstractController
         $this->jobsService = $jobsService;
     }
 
+    // Tester en cas de suppression du cache
     // #[Route('/delete', name: 'delete_token')]
     // public function deleteToken(CacheInterface $cacheInterface): JsonResponse
     // {
@@ -34,11 +35,10 @@ class JobsController extends AbstractController
     //     }
     // }
 
-
     #[Route('/', name: 'homepage')]
     public function index(): RedirectResponse
     {
-        // Redirection vers la route 'search_jobs'
+        // Redirection vers la route 'search_jobs' pour le moment
         return $this->redirectToRoute('search_jobs');
     }
 
@@ -66,33 +66,40 @@ class JobsController extends AbstractController
 
         // Gère la soumission du formulaire
         $searchForm->handleRequest($request);
+
+        // Initialise le currentPage à 1 par défaut
         $currentPage = 1;
+        // Initialise les params s'ils sont présents dans l'url
         $what = $request->query->get('what');
         $where = $request->query->get('where');
 
-        // Si le formulaire est soumis et valide
-        if ($searchForm->isSubmitted() && $searchForm->isValid()) {
-            $userInput = $searchForm->getData();
-            // Faire une requête avec les données du formulaire
-            $what = $userInput['what'];
-            $where =  $userInput['where'];
-            $dataAPI = $this->jobsService->getJobs($what, $where);
+        try {
+            // Si le formulaire est soumis et valide
+            if ($searchForm->isSubmitted() && $searchForm->isValid()) {
+                $userInput = $searchForm->getData();
+                // Faire une requête avec les données du formulaire
+                $what = $userInput['what'];
+                $where =  $userInput['where'];
+                $dataAPI = $this->jobsService->getJobs($what, $where);
 
-            // Sinon, prendre les params de l'url
-        } elseif ($what && $where) {
-            $currentPage = $request->query->get('page');
-            $dataAPI = $this->jobsService->getJobs($what, $where, $currentPage);
+                // Sinon, prendre les params de l'url 
+            } elseif ($what && $where) {
+                $currentPage = $request->query->get('page');
+                $dataAPI = $this->jobsService->getJobs($what, $where, $currentPage);
 
-            // Sinon, rendre le template de base
-        } else {
+                // Sinon, rendre le template de base
+            } else {
+                return $this->render('jobs.html.twig', [
+                    'searchForm' => $searchForm->createView()
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
             return $this->render('jobs.html.twig', [
                 'searchForm' => $searchForm->createView()
             ]);
         }
 
-        //Todo : Gérer le cas où l'api ne retourne une erreur
-
-        //Todo : Gérer le cas où les données ci-dessous n'existent pas
         $jobsData = $dataAPI->data;
         $totalJobsFound = $jobsData->total;
         $jobsFound = $jobsData->ads;
