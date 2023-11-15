@@ -36,9 +36,6 @@
 							</div>
 							<p>{{ job.description | raw }}...</p>
 						</li>
-					{% else %}
-						{# S'il y n'a aucune offres #}
-						<p>Pas d'offres trouvées</p>
 					{% endfor %}
 				</ul>
 
@@ -90,9 +87,12 @@
 						{% endif %}
 					</div>
 				</div>
+			{% elseif jobs is defined and totalJobs is same as(0) %}
+				{# S'il y n'a aucune offres #}
+				<p>Pas d'offres trouvées</p>
 
 				{# Affichage par défaut #}
-			{% else %}
+			{% else  %}
 				<section class="header-content">
 					<h1>Vos offres d'emploi en temps réel</h1>
 					<p class="description">Jobijoba regroupe toutes les offres d'emploi du web et vous les suggère de manière personnalisée

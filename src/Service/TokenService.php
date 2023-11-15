@@ -38,7 +38,7 @@ class TokenService
             // $error = curl_error($curl);
             // Ajouter un logger avec $error
             curl_close($curl);
-            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard.");
+            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard. 1");
         }
 
         $decodedResponse = json_decode($response);
@@ -47,7 +47,7 @@ class TokenService
         // Si la requête a réussi mais qu'on ne trouve pas de token
         if (!isset($decodedResponse->token)) {
             // Ajouter un logger
-            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard..");
+            throw new \Exception("Le service est temporairement indisponible. Veuillez réessayer plus tard. 2");
         }
 
         return $decodedResponse->token;

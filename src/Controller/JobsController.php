@@ -81,6 +81,7 @@ class JobsController extends AbstractController
                 $what = $userInput['what'];
                 $where =  $userInput['where'];
                 $dataAPI = $this->jobsService->getJobs($what, $where);
+                // dd($dataAPI);
 
                 // Sinon, prendre les params de l'url 
             } elseif ($what && $where) {

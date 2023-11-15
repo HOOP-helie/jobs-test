@@ -42,7 +42,7 @@ class JobsService
             return $decodedResponse;
         } else {
             // Ajouter un logger
-            throw new \Exception("La requête a échoué. Veuillez réssayer plus tard.");
+            throw new \Exception("Il semble y avoir une erreur. Veuillez vérifier que les informations saisies sont correctes.");
         }
     }
 }
