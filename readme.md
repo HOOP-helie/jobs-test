@@ -11,3 +11,5 @@ $ git clone "https://github.com/HOOP-helie/jobs-test.git"
 ```bash
 $ docker-compose up 
 ```
+
+4. Visiter http://localhost:8000
